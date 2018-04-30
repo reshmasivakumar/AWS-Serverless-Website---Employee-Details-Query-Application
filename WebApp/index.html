@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>AWS Web APP</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="bootstrap.css">
+	
+	<nav class="navbar navbar-default">
+  	<div class="container-fluid">
+    	<!-- Brand and toggle get grouped for better mobile display -->
+    	<div class="navbar-header">
+      	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+      	</button>
+      	<a class="navbar-brand" href="http://reshma-cloud490.s3-website.us-east-2.amazonaws.com/">Reload Page</a>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Rancho&effect=destruction" rel="stylesheet"> 
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+	</div>
+	</nav>
+
+
+	<!-- Import statements for LoadAPi -->
+	<script type="text/javascript" src="lib/axios/dist/axios.standalone.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/rollups/hmac-sha256.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/rollups/sha256.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/components/hmac.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/components/enc-base64.js"></script>
+    <script type="text/javascript" src="lib/url-template/url-template.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/sigV4Client.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/apiGatewayClient.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/simpleHttpClient.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
+    <script type="text/javascript" src="apigClient.js"></script>
+
+
+    <!-- Import statements for QueryAPI -->
+    <script type="text/javascript" src="apigClient.js"></script>
+
+
+	<h1 class= "font-effect-destruction"> Employee Details Query Application </h1>
+
+</head>
+<body>
+
+
+<script type="text/javascript">
+    function callAwsLambdaFunction() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("loadBtn").innerHTML = this.responseText;
+            }
+        };
+        xhttp.open("GET", "https://ly0c67sh49.execute-api.us-east-2.amazonaws.com/Test/GetDetails", true);
+        xhttp.send();
+        window.alert("URL Uploaded to S3")
+
+    }
+    </script>  
+
+<form>
+<div class="form-style-1" id="container">
+ 	<div>
+	<LABEL for "firstName">First Name:</LABEL>
+	<input name="firstName" type="text" placeholder="John">
+	<LABEL for "lastName">Last Name:</LABEL>
+	<input name = "lastName" type="text" placeholder = "Smith">
+    </div>
+</div>
+
+<div>
+<ul class = "form-style-1">
+	 <li>
+        <input type="submit" value="Load Data" onclick="callAwsLambdaFunction()" />
+    </li>
+
+	 <li>
+        <input type="submit" value="Query" onclick="callAwsQueryFunction()" />
+    </li>
+</ul>
+
+
+<div id="results" class="form-style-1">
+</div>
+
+</form>  
+
+<script type="text/javascript">
+    function callAwsQueryFunction() {
+        var lName = $('input[name=lastName]').val();
+        var fName = $('input[name=firstName]').val();
+        if (fName == null)
+            fName='None';
+         if (lName == null)
+            lName='None';
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("queryBtn").innerHTML = this.responseText;
+            }
+        };
+        xhttp.open("GET", "https://3pcwq2m7i8.execute-api.us-east-2.amazonaws.com/Test/persondetails?+" + lName + "/" + fName, true);
+         
+
+        xhttp.send();
+        
+ 
+    var dataResult;
+    $(document).ready(function() {
+    
+    var apigClient = apigClientFactory.newClient();
+    $('form').submit(function(event) {
+    var queryData = {
+        'lastName' : $('input[name=lastName]').val(),
+        'firstName' : $('input[name=firstName]').val()
+    };
+
+    var params = {
+        'lastName' : $('input[name=lastName]').val(),
+        'firstName' : $('input[name=firstName]').val()
+    };
+
+    var body = {
+
+    };
+
+    var additionalParams = {
+        headers: {
+
+        },
+        queryParams: {
+            'lastName' : $('input[name=lastName]').val(),
+            'firstName' : $('input[name=firstName]').val()
+        }
+    };
+   
+    apigClient.persondetailsGet(params, body, additionalParams)
+        .then(function(result) {
+            console.log(result.data);
+             var resultStr = "";
+            dataResult = result.data;
+            
+            
+            if (result.data != null && result.data.length > 0 && result.data[0].lastName.length > 1) {
+          
+            for (var i = 0; i < result.data.length; i++) {
+
+            	resultStr += JSON.stringify(result.data[i], null, '\t');
+	            /*resultStr += 'lastName: <b> '+ result.data[i].lastName+
+	            '</b>' + ' firstName: <b> '+ result.data[i].firstName;
+	            if (result.data[i].id != null )
+	            	resultStr += ' </b> ' + ' id: <b> '+ result.data[i].id;
+	           	if (result.data[i].phone != null)
+	            	resultStr += ' </b> ' + ' phone: <b> '+ result.data[i].phone;
+	            if (result.data[i].office != null)
+	            	resultStr += ' </b> ' + ' office: <b> '+ result.data[i].office;
+	            if (result.data[i].age != null)
+	            	resultStr += ' </b> ' + ' age: <b> '+ result.data[i].age;
+	            resultStr += ' </b><br>';
+	            console.log(resultStr);*/
+	            
+	              resultStr += ' </b><br>';
+        	}
+        }
+        
+
+        else if (result.data == null || result.data.length <= 0) {
+            	resultStr = 'No records returned for this search criteria!';
+            	$('#results').html(resultStr);
+            	return false;
+        }
+        else if (result.data = 'No records found for search!'){
+            	resultStr = 'No records returned for this search criteria!';
+            	$('#results').html(resultStr);
+            	return false;
+         }
+
+        	$('#results').html(resultStr);
+        }).catch( function(result){
+            console.log("error");
+        });
+        return false;
+    });
+});
+};
+
+</script> 
+
+
+ 	</div>		
+ 
+
+	
+</body>
+</html>
